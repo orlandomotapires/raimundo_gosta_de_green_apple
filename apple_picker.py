@@ -1,5 +1,6 @@
 import random
 import pygame
+import queue
 
 # Set up the game window
 pygame.init()
@@ -99,31 +100,50 @@ def find_apple_in_side_laser_range(y_pos, apples):
 # World model should contain data and methods 
 # to represent and predict how the world works
 class WorldModel:
-  pass
+    def __init__(self):
+        self.apples_know = [] # Lista de macas existentes
 
+    def update_apples(self, apples):
+        self.apples_know = apples
+
+    def get_closest_apple(self, lever_pos):
+        if not self.apples_know:
+            return None
+        
+        # Ordena as maçãs pela distância até a alavanca e retorna a mais próxima
+        return sorted(self.apples_know, key=lambda apple: abs(apple[0] - lever_pos))[0]
 
 # Agent contains its reaction based on sensors and its understanding
 # of the world. This is where you decide what action you take
 class Agent:
   def __init__(self, wm, max_lever_displacement, arena_width):
     self.worlmodel = wm
-    # O maximo de unidades que voce pode se mover na decisao
     self.max_lever_displacement = max_lever_displacement 
-    
-    # Tamanho da arena
     self.arena_width = arena_width
 
-  # Essa função recebe dados dos sensores como argumento
-  # e retorna o nova posicao. A nova posicao nao pode ser
-  # mais distante que max_lever_displacement da anterior
   def decision(self, lever_pos, laser_scan, side_laser_scan, score):
-    print(f"{lever_pos=}, {laser_scan=}, {side_laser_scan=}, {score=}")
-    # Acessar a posição do mouse é apenas para facilitar depuração
-    # a solução final não deve acessar os objetos ou funções do pygame
-    desired_lever_pos = pygame.mouse.get_pos()[0] - lever_width/2
-    return desired_lever_pos
+    print(f"{lever_pos=}, {laser_scan=}, {side_laser_scan=}, {score=}, {self.max_lever_displacement=}, {self.arena_width=}, {lever_width=}")
+    closest_apple = wm.get_closest_apple(lever_pos)
 
-
+    # Se não houver maçã detectada, mantenha a posição atual
+    if not closest_apple:
+        return lever_pos
+    
+    apple_x, _, apple_color = closest_apple
+    
+    # Se a maçã detectada for verde, mova-se em sua direção
+    if apple_color == good_apple_color:
+        if apple_x > lever_pos:
+            return min(lever_pos + self.max_lever_displacement, self.arena_width - lever_width)
+        else:
+            return max(lever_pos - self.max_lever_displacement, 0)
+    
+    # Se a maçã detectada for vermelha, mova-se na direção oposta
+    else:
+        if apple_x > lever_pos:
+            return max(lever_pos - self.max_lever_displacement, 0)
+        else:
+            return min(lever_pos + self.max_lever_displacement, self.arena_width - lever_width)
 
 ########################################################################
 # 
@@ -150,7 +170,6 @@ while running:
 
     # Clear the screen
     screen.fill((255, 255, 255))
-
  
     closest_apple_distance = None
     if closest_apple is not None:
@@ -165,17 +184,18 @@ while running:
       	"distance": (closest_s_apple[0]) - apple_radius,
       	"color": "red" if closest_s_apple[2] == (255, 0, 0) else "green"
       }      
-        
+    
     #print(f"{closest_apple_distance=} with data {closest_apple=}")  
     desired_lever_pos = agent.decision(lever_pos, closest_apple_distance, closest_side_apple_distance, score)
+    
     if abs(lever_pos - desired_lever_pos) > lever_width/2 + max_lever_displacement:
-      print("Max lever displacement exceeded")
+        print("Max lever displacement exceeded")
     else: 
-      lever_pos = desired_lever_pos
+        lever_pos = desired_lever_pos
     
     closest_apple = find_apple_in_laser_range(lever_pos, apples)
     closest_s_apple = find_apple_in_side_laser_range(wall_laser_y, apples)
-      
+    
     # Draw the lever    
     draw_lever(lever_pos)
     draw_laser_scan(lever_pos, 0 if closest_apple is None else closest_apple[1])
@@ -207,7 +227,10 @@ while running:
             novel_apples.append((x_pos, y_pos, color))
             draw_apple(x_pos, y_pos, color)
     apples = novel_apples
-            
+    
+    # Atualizar o WorldModel com a lista atual de maçãs
+    wm.update_apples(apples)
+
     # Draw the score
     score_text = "Score: " + str(score)
     font = pygame.font.SysFont("Arial", 32)
