@@ -104,14 +104,17 @@ class WorldModel:
         self.apples_know = [] # Lista de macas existentes
 
     def update_apples(self, apples):
-        self.apples_know = apples
+        self.apples_know = [x for x in apples if x[2] == good_apple_color]
 
     def get_closest_apple(self, lever_pos):
         if not self.apples_know:
-            return None
+            return None, None
         
-        # Ordena as maçãs pela distância até a alavanca e retorna a mais próxima
-        return sorted(self.apples_know, key=lambda apple: abs(apple[0] - lever_pos))[0]
+         # Ordena as maçãs pela distância até a alavanca e retorna a mais próxima
+        apple_sorted_y = sorted(self.apples_know, key=lambda apple: abs(600 - apple[1]))[0] # apple_x, apple_y, color
+        apple_sorted_x = sorted(self.apples_know, key=lambda apple: abs(apple[0] - lever_pos))[0] # apple_x, apple_y, color
+
+        return  apple_sorted_y, apple_sorted_x
 
 # Agent contains its reaction based on sensors and its understanding
 # of the world. This is where you decide what action you take
@@ -123,27 +126,29 @@ class Agent:
 
   def decision(self, lever_pos, laser_scan, side_laser_scan, score):
     print(f"{lever_pos=}, {laser_scan=}, {side_laser_scan=}, {score=}, {self.max_lever_displacement=}, {self.arena_width=}, {lever_width=}")
-    closest_apple = wm.get_closest_apple(lever_pos)
-
+    closest_apple_y, closest_apple_x = wm.get_closest_apple(lever_pos)
+    
     # Se não houver maçã detectada, mantenha a posição atual
-    if not closest_apple:
+    if not closest_apple_y:
         return lever_pos
     
-    apple_x, _, apple_color = closest_apple
+    apple_x, apple_y, apple_color = closest_apple_y
+    apple_time_fall = apple_y / apple_speed
+    lever_time_catch_apple = abs(apple_x - lever_pos) / lever_speed
     
-    # Se a maçã detectada for verde, mova-se em sua direção
-    if apple_color == good_apple_color:
+    # Se a maçã detectada for verde e de pra pegar ela, mova-se em sua direção
+    if apple_color == good_apple_color and apple_time_fall >= lever_time_catch_apple:
         if apple_x > lever_pos:
             return min(lever_pos + self.max_lever_displacement, self.arena_width - lever_width)
         else:
             return max(lever_pos - self.max_lever_displacement, 0)
-    
-    # Se a maçã detectada for vermelha, mova-se na direção oposta
-    else:
+    elif apple_color == good_apple_color and apple_time_fall < lever_time_catch_apple:
+        apple_x, apple_y, apple_color = closest_apple_x
         if apple_x > lever_pos:
-            return max(lever_pos - self.max_lever_displacement, 0)
-        else:
             return min(lever_pos + self.max_lever_displacement, self.arena_width - lever_width)
+        else:
+            return max(lever_pos - self.max_lever_displacement, 0)
+        
 
 ########################################################################
 # 
@@ -162,6 +167,10 @@ lever_pos = screen_width / 2
 closest_apple = None
 closest_s_apple = None
 decisions_count = 0
+
+good_apple_caught = 0
+bad_apple_caught = 0
+
 while running:
     # Handle events
     for event in pygame.event.get():
@@ -219,8 +228,10 @@ while running:
         if detect_collision(apple, lever_pos):
             if color == good_apple_color:
                 score += good_apple_value
+                good_apple_caught += 1
             else:
                 score += bad_apple_value
+                bad_apple_caught += 1
         elif y_pos >= screen_height: 
             pass
         else:
@@ -268,6 +279,18 @@ pygame.display.update()
 
 # Wait for a few seconds before quitting
 pygame.time.wait(3000)
+
+print("Bad_apple count: ")
+print(bad_apple_count)
+
+print("Bad_apple_caught: ")
+print(bad_apple_caught)
+
+print("Good_apple count: ")
+print(good_apple_count)
+
+print("Good_apple_caught: ")
+print(good_apple_caught)
 
 # Quit the game
 pygame.quit()    
