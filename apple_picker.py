@@ -4,7 +4,7 @@ import queue
 
 # Set up the game window
 pygame.init()
-screen_width = 1024
+screen_width = 800
 screen_height = 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Apple Picker")
@@ -105,7 +105,7 @@ class WorldModel:
         self.quadrants = [0,0]
 
     def update_apples(self, apples):
-        self.apples_know = [x for x in apples if x[2] == good_apple_color]
+        self.apples_know = apples
         for x in apples:
             if x[2] == good_apple_color:
                 if x[0] < screen_width/2:
@@ -143,11 +143,12 @@ class Agent:
     apple_x, apple_y, apple_color = closest_apple_y
     apple_time_fall = apple_y / apple_speed
     lever_time_catch_apple = abs(apple_x - lever_pos) / lever_speed
-    difference_time = abs(apple_time_fall - self.last_time_apple)
-    
+
+    # difference_time = abs(apple_time_fall - self.last_time_apple)
+    # self.last_time_apple = apple_time_fall
+
     # Se a maçã detectada for verde e de pra pegar ela, mova-se em sua direção
-    if apple_color == good_apple_color and apple_time_fall >= lever_time_catch_apple:
-        self.last_time_apple = apple_time_fall
+    if apple_color == good_apple_color and apple_time_fall >= lever_time_catch_apple: 
         if apple_x > lever_pos:
             return min(lever_pos + self.max_lever_displacement, self.arena_width - lever_width)
         else:
@@ -157,7 +158,6 @@ class Agent:
             return min(lever_pos + self.max_lever_displacement, self.arena_width/2 - lever_width)
         else:
             return max(lever_pos - self.max_lever_displacement, (self.arena_width/2)/2)
-    
 
 ########################################################################
 # 
@@ -289,17 +289,17 @@ pygame.display.update()
 # Wait for a few seconds before quitting
 pygame.time.wait(3000)
 
-print("Bad_apple count: ")
-print(bad_apple_count)
-
-print("Bad_apple_caught: ")
-print(bad_apple_caught)
-
 print("Good_apple count: ")
 print(good_apple_count)
 
+print("Bad_apple count: ")
+print(bad_apple_count)
+
 print("Good_apple_caught: ")
 print(good_apple_caught)
+
+print("Bad_apple_caught: ")
+print(bad_apple_caught)
 
 # Quit the game
 pygame.quit()    
