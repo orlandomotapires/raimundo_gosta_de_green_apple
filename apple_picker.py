@@ -102,19 +102,26 @@ def find_apple_in_side_laser_range(y_pos, apples):
 class WorldModel:
     def __init__(self):
         self.apples_know = [] # Lista de macas existentes
+        self.quadrants = [0,0]
 
     def update_apples(self, apples):
         self.apples_know = [x for x in apples if x[2] == good_apple_color]
+        for x in apples:
+            if x[2] == good_apple_color:
+                if x[0] < screen_width/2:
+                    self.quadrants[0] += 1
+                else:
+                    self.quadrants[1] += 1
 
     def get_closest_apple(self, lever_pos):
         if not self.apples_know:
-            return None, None
+            return None, None, None
         
          # Ordena as maçãs pela distância até a alavanca e retorna a mais próxima
         apple_sorted_y = sorted(self.apples_know, key=lambda apple: abs(600 - apple[1]))[0] # apple_x, apple_y, color
         apple_sorted_x = sorted(self.apples_know, key=lambda apple: abs(apple[0] - lever_pos))[0] # apple_x, apple_y, color
 
-        return  apple_sorted_y, apple_sorted_x
+        return  apple_sorted_y, apple_sorted_x, self.quadrants
 
 # Agent contains its reaction based on sensors and its understanding
 # of the world. This is where you decide what action you take
@@ -123,10 +130,11 @@ class Agent:
     self.worlmodel = wm
     self.max_lever_displacement = max_lever_displacement 
     self.arena_width = arena_width
+    self.last_time_apple = 0
 
   def decision(self, lever_pos, laser_scan, side_laser_scan, score):
     print(f"{lever_pos=}, {laser_scan=}, {side_laser_scan=}, {score=}, {self.max_lever_displacement=}, {self.arena_width=}, {lever_width=}")
-    closest_apple_y, closest_apple_x = wm.get_closest_apple(lever_pos)
+    closest_apple_y, closest_apple_x, quadrants = wm.get_closest_apple(lever_pos)
     
     # Se não houver maçã detectada, mantenha a posição atual
     if not closest_apple_y:
@@ -135,20 +143,21 @@ class Agent:
     apple_x, apple_y, apple_color = closest_apple_y
     apple_time_fall = apple_y / apple_speed
     lever_time_catch_apple = abs(apple_x - lever_pos) / lever_speed
+    difference_time = abs(apple_time_fall - self.last_time_apple)
     
     # Se a maçã detectada for verde e de pra pegar ela, mova-se em sua direção
     if apple_color == good_apple_color and apple_time_fall >= lever_time_catch_apple:
+        self.last_time_apple = apple_time_fall
         if apple_x > lever_pos:
             return min(lever_pos + self.max_lever_displacement, self.arena_width - lever_width)
         else:
             return max(lever_pos - self.max_lever_displacement, 0)
-    elif apple_color == good_apple_color and apple_time_fall < lever_time_catch_apple:
-        apple_x, apple_y, apple_color = closest_apple_x
-        if apple_x > lever_pos:
-            return min(lever_pos + self.max_lever_displacement, self.arena_width - lever_width)
+    else:
+        if quadrants[0] < quadrants[1]:
+            return min(lever_pos + self.max_lever_displacement, self.arena_width/2 - lever_width)
         else:
-            return max(lever_pos - self.max_lever_displacement, 0)
-        
+            return max(lever_pos - self.max_lever_displacement, (self.arena_width/2)/2)
+    
 
 ########################################################################
 # 
