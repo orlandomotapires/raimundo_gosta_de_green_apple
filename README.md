@@ -1,7 +1,7 @@
 # Apple Picker
 
 ## Descrição
-"Apple Picker" é um jogo desenvolvido em Python usando a biblioteca Pygame. Neste jogo, maçãs caem do topo da tela e o jogador (ou um agente automatizado) deve mover uma plataforma para pegar as maçãs verdes e evitar as vermelhas. O objetivo é maximizar a pontuação, pegando maçãs verdes e evitando maçãs vermelhas.
+Desenvolvido na disciplina de Inteligência Computacional do curso de Engenharia de Computação, "Apple Picker" é um jogo desenvolvido em Python usando a biblioteca Pygame. Neste jogo, maçãs caem do topo da tela e o jogador (ou um agente automatizado) deve mover uma plataforma para pegar as maçãs verdes e evitar as vermelhas. O objetivo é maximizar a pontuação, pegando maçãs verdes e evitando maçãs vermelhas.
 
 ## Características
 - **Maçãs Verdes e Vermelhas**: Maçãs verdes aumentam sua pontuação, enquanto maçãs vermelhas a diminuem.
