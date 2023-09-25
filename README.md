@@ -1,25 +1,21 @@
 # Apple Picker
 
-## Descrição
-Desenvolvido na disciplina de Inteligência Computacional do curso de Engenharia de Computação, "Apple Picker" é um jogo desenvolvido em Python usando a biblioteca Pygame. Neste jogo, maçãs caem do topo da tela e o jogador (ou um agente automatizado) deve mover uma plataforma para pegar as maçãs verdes e evitar as vermelhas. O objetivo é maximizar a pontuação, pegando maçãs verdes e evitando maçãs vermelhas.
+## Description
+Developed in the Computational Intelligence course of the Computer Engineering program, "Apple Picker" is a game created in Python using the Pygame library. In this game, apples fall from the top of the screen, and the player (or an automated agent) must move a platform to catch the green apples and avoid the red ones. The goal is to maximize your score by catching green apples and avoiding red ones.
 
-## Características
-- **Maçãs Verdes e Vermelhas**: Maçãs verdes aumentam sua pontuação, enquanto maçãs vermelhas a diminuem.
-- **Sensores Laser**: A plataforma é equipada com sensores laser para detectar a posição das maçãs.
-- **Agente Automatizado**: O jogo pode ser jogado manualmente ou usando um agente automatizado que toma decisões com base nas informações dos sensores.
+## Features
+- **Green and Red Apples**: Green apples increase your score, while red apples decrease it.
+- **Laser Sensors**: The platform is equipped with laser sensors to detect the position of the apples.
+- **Automated Agent**: The game can be played manually or by using an automated agent that makes decisions based on sensor information.
 
-## Requisitos
+## Requirements
 - Python 3.x
 - Pygame
 
-## Como Jogar
-1. Clone este repositório.
-2. Instale as dependências usando `pip install pygame`.
-3. Execute o jogo com `python nome_do_arquivo.py`.
+## How to Play
+1. Clone this repository.
+2. Install the dependencies using `pip install pygame`.
+3. Run the game with `python file_name.py`.
 
-## Contribuições
-Contribuições são bem-vindas! Por favor, faça um fork deste repositório e crie um Pull Request com suas mudanças.
-
-## Licença
-MIT
-
+## Contributions
+Contributions are welcome! Please fork this repository and create a Pull Request with your changes.
